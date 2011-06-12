@@ -10,12 +10,10 @@ Gem::Specification.new do |s|
   s.email       = ["mroghelia@topsailtech.com"]
   s.homepage    = ""
   s.summary     = %q{Provides basic create, request, update and delete actions for a controller.}
-  s.description = %q{TODO: Write a gem description}
+  s.description = %q{Provides basic create, request, update and delete actions for a controller.}
   s.license     = %q{MIT}
   
   s.add_dependency 'rails', '~> 3.0'
-
-  s.rubyforge_project = "acts_as_crud"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
