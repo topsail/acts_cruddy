@@ -1,4 +1,4 @@
-# Topsail CRUD #
+# Acts Cruddy #
 
 Basic implementation of RESTful create, request, update and delete actions for Rails controllers.
 
