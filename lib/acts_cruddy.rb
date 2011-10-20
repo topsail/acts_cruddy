@@ -16,9 +16,6 @@ module ActsCruddy
     #
     def acts_cruddy(options={})
       
-      send :include, InstanceMethods
-      helper_method :record_class
-
       options = {
         :formats => [ :html, :json, :xml ],
         :only => ::ActsCruddy::ACTIONS,
@@ -26,18 +23,26 @@ module ActsCruddy
         :redirect_to_after_save => 'show'
       }.merge(options.symbolize_keys!)
 
-      options[:redirect_to_after_create] ||= options[:redirect_to_after_save]
-      options[:redirect_to_after_update] ||= options[:redirect_to_after_save]
+      # Save the redirect config in class variables so it can be used by format modules
+      @redirect_to_after_create = options[:redirect_to_after_create] || options[:redirect_to_after_save]
+      @redirect_to_after_update = options[:redirect_to_after_update] || options[:redirect_to_after_save]
 
+      class << self;
+        attr_accessor :redirect_to_after_create, :redirect_to_after_update
+      end
+
+      # Figure out which actions to create based on the only and except options
       except = [*options[:except]].map!(&:to_sym)
-
       actions = [*options[:only]].map(&:to_sym)
       actions.reject! { |key, value| except.include?(key) }
 
-      before_filter :set_record_variables, :only => actions
+      # Add in the instance methods for working with records without knowing their type
+      send :include, InstanceMethods
+      helper_method :record_class
+      before_filter :set_record_variables, :only => actions, :except => :index
 
       # Remember the instance_methods we had before we started
-      # mixing things in, so I can leave them alone later
+      # mixing things in, so we can leave them unchanged
       original_instance_methods = instance_methods.dup
 
       options[:formats].each do |format|
@@ -48,38 +53,29 @@ module ActsCruddy
         format_module = "/#{path}".camelize.constantize
         send :include, format_module
 
-        # Now alias them to avoid name conflicts between modules
+        # Alias the actions to avoid name conflicts between modules
         ::ActsCruddy::ACTIONS.each do |action|
           if format_module.instance_methods.include?(action) && !original_instance_methods.include?(action)
             alias_method("#{action}_#{format}".to_sym, action)
           end
         end
+
       end
 
-      self.class_eval do
-        
-        @redirect_to_after_create = options[:redirect_to_after_create]
-        @redirect_to_after_update = options[:redirect_to_after_update]
+      # Add action methods that delegate to the format specific methods based on the request format
+      ::ActsCruddy::ACTIONS.each do |action|
 
-        class << self;
-          attr_accessor :redirect_to_after_create, :redirect_to_after_update
-        end
+        unless original_instance_methods.include?(action) # Don't change methods that existed before the mixins
 
-        ::ActsCruddy::ACTIONS.each do |action|
+          if actions.include?(action.to_sym)
 
-          unless original_instance_methods.include?(action) # Don't change methods that existing before the mixins
-
-            if actions.include?(action.to_sym)
-
-              define_method action do
-                action_method = "#{action}_#{request.format.to_sym}"
-                send action_method if respond_to? action_method
-              end
-
-            else
-              undef_method(action) if self.instance_methods.include?(action)
+            define_method action do
+              action_method = "#{action}_#{request.format.to_sym}"
+              send action_method if respond_to? action_method
             end
 
+          else
+            undef_method(action) if self.instance_methods.include?(action)
           end
 
         end
@@ -102,25 +98,6 @@ module ActsCruddy
 
     def record_class
       @record_class ||= controller_name.classify.constantize
-    end
-
-    # The scope of a translation by default is based on the location of the
-    # template file.  This provides a version of translate that will look
-    # for a value based on the application_controller subclass name, then fall back to the
-    # application_controller scope, regardless of where the template file is.
-    def hierarchical_translate(key, options={})
-     
-      options = {
-        :scope => controller_path.gsub('/', '.') + '.' + action_name,
-        :default => t("application.#{action_name}.#{key}",
-                        {
-                          :human_name => record_class.model_name.human,
-                          :plural_human_name => record_class.model_name.human.pluralize
-                        }.merge(options))
-      }.merge(options)
-
-      t(key, options)
-
     end
 
     def record_name_attribute

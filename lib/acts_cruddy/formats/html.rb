@@ -65,6 +65,25 @@ module ActsCruddy
 
       end
 
+      # The scope of a translation by default is based on the location of the
+      # template file.  This provides a version of translate that will look
+      # for a value based on the application_controller subclass name, then fall back to the
+      # application_controller scope, regardless of where the template file is.
+      def hierarchical_translate(key, options={})
+       
+        options = {
+          :scope => controller_path.gsub('/', '.') + '.' + action_name,
+          :default => t("application.#{action_name}.#{key}",
+                          {
+                            :human_name => record_class.model_name.human,
+                            :plural_human_name => record_class.model_name.human.pluralize
+                          }.merge(options))
+        }.merge(options)
+
+        t(key, options)
+
+      end
+
     end
 
   end
