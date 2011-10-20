@@ -45,9 +45,10 @@ module ActsCruddy
       # mixing things in, so we can leave them unchanged
       original_instance_methods = instance_methods.dup
 
+      # Mix in the action methods for each format
       options[:formats].each do |format|
 
-        # Mix in the action methods from the format module
+        # Include the format module
         path = "acts_cruddy/formats/#{format}"
         require path
         format_module = "/#{path}".camelize.constantize
@@ -75,6 +76,7 @@ module ActsCruddy
             end
 
           else
+            # Clean up any mixed in actions that were not wanted.
             undef_method(action) if self.instance_methods.include?(action)
           end
 
