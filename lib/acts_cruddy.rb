@@ -36,15 +36,23 @@ module ActsCruddy
 
       before_filter :set_record_variables, :only => actions
 
+      # Remember the instance_methods we had before we started
+      # mixing things in, so I can leave them alone later
+      original_instance_methods = instance_methods.dup
+
       options[:formats].each do |format|
+
         # Mix in the action methods from the format module
         path = "acts_cruddy/formats/#{format}"
         require path
         format_module = "/#{path}".camelize.constantize
         send :include, format_module
-        # Now alias them to avoid name conflicts
+
+        # Now alias them to avoid name conflicts between modules
         ::ActsCruddy::ACTIONS.each do |action|
-          alias_method("#{action}_#{format}".to_sym, action) if format_module.instance_methods.include?(action)
+          if format_module.instance_methods.include?(action) && !original_instance_methods.include?(action)
+            alias_method("#{action}_#{format}".to_sym, action)
+          end
         end
       end
 
@@ -59,17 +67,17 @@ module ActsCruddy
 
         ::ActsCruddy::ACTIONS.each do |action|
 
-          if actions.include?(action.to_sym)
+          unless original_instance_methods.include?(action) # Don't change methods that existing before the mixins
 
-            define_method action do
-              action_method = "#{action}_#{request.format.to_sym}"
-              send action_method if respond_to? action_method
-            end
+            if actions.include?(action.to_sym)
 
-          else
-            
-            define_method action do
-              raise "#{action} action not supported."
+              define_method action do
+                action_method = "#{action}_#{request.format.to_sym}"
+                send action_method if respond_to? action_method
+              end
+
+            else
+              undef_method(action) if self.instance_methods.include?(action)
             end
 
           end
