@@ -38,7 +38,7 @@ module ActsCruddy
 
       # Add in the instance methods for working with records without knowing their type
       send :include, InstanceMethods
-      helper_method :record_class
+      helper_method :record_class, :record_name, :plural_record_name
       before_filter :set_record_variables, :only => actions, :except => :index
 
       # Remember the instance_methods we had before we started
