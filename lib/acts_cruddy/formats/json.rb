@@ -30,7 +30,7 @@ module ActsCruddy
       def update
           
         if @record.update_attributes(params[@record_name])
-          head :ok
+          render :json => '', :status => :ok
         else
           render :json => @record.errors.full_messages, :status => :unprocessable_entity
         end
