@@ -72,6 +72,7 @@ module ActsCruddy
 
             define_method action do
               action_method = "#{action}_#{request.format.to_sym}"
+              action_method += 'html' if action_method[-1] == '_'  # IE sends an ACCEPT header of '*/*' when hitting RELOAD and the url doersn't have a format extension; trying to accomodate...
               send action_method if respond_to? action_method
             end
 
