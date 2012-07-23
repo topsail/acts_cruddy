@@ -14,6 +14,7 @@ module ActsCruddy
     # To control which actions get implemented, use the +only+ and
     # +except+ options.
     #
+
     def acts_cruddy(options={})
       
       options = {
@@ -23,13 +24,9 @@ module ActsCruddy
         :redirect_to_after_save => 'show'
       }.merge(options.symbolize_keys!)
 
-      # Save the redirect config in class variables so it can be used by format modules
+      # Save the redirect config in class instance variables so it can be used by format modules
       @redirect_to_after_create = options[:redirect_to_after_create] || options[:redirect_to_after_save]
       @redirect_to_after_update = options[:redirect_to_after_update] || options[:redirect_to_after_save]
-
-      class << self;
-        attr_accessor :redirect_to_after_create, :redirect_to_after_update
-      end
 
       # Figure out which actions to create based on the only and except options
       except = [*options[:except]].map!(&:to_sym)
@@ -85,6 +82,20 @@ module ActsCruddy
 
       end
 
+    end
+
+		def inheritable_attributes(*args)
+			[:redirect_to_after_create, :redirect_to_after_update].each do |arg|
+				class_eval %(class << self; attr_accessor :#{arg} end)
+			end
+			@inheritable_attributes
+		end
+		
+		def inherited(subclass)
+      @inheritable_attributes.each do |inheritable_attribute|
+        instance_var = "@#{inheritable_attribute}"
+        subclass.instance_variable_set(instance_var, instance_variable_get(instance_var))
+      end
     end
 
   end
