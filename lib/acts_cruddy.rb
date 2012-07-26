@@ -23,13 +23,9 @@ module ActsCruddy
         :redirect_to_after_save => 'show'
       }.merge(options.symbolize_keys!)
 
-      # Save the redirect config in class variables so it can be used by format modules
-      @redirect_to_after_create = options[:redirect_to_after_create] || options[:redirect_to_after_save]
-      @redirect_to_after_update = options[:redirect_to_after_update] || options[:redirect_to_after_save]
-
-      class << self;
-        attr_accessor :redirect_to_after_create, :redirect_to_after_update
-      end
+      # define redirect_to_after_create and redirect_to_after_update as methods so that subclasses inherit them
+			class_eval %(class << self; def redirect_to_after_create; "#{ options[:redirect_to_after_create] || options[:redirect_to_after_save] }" end; end)
+			class_eval %(class << self; def redirect_to_after_update; "#{ options[:redirect_to_after_update] || options[:redirect_to_after_save] }" end; end)
 
       # Figure out which actions to create based on the only and except options
       except = [*options[:except]].map!(&:to_sym)
