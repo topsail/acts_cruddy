@@ -24,8 +24,8 @@ module ActsCruddy
       }.merge(options.symbolize_keys!)
 
       # define redirect_to_after_create and redirect_to_after_update as methods so that subclasses inherit them
-			class_eval %(class << self; def redirect_to_after_create; "#{ options[:redirect_to_after_create] || options[:redirect_to_after_save] }" end; end)
-			class_eval %(class << self; def redirect_to_after_update; "#{ options[:redirect_to_after_update] || options[:redirect_to_after_save] }" end; end)
+      class_eval %(class << self; def redirect_to_after_create; #{ (options[:redirect_to_after_create] || options[:redirect_to_after_save]).inspect } end; end)
+      class_eval %(class << self; def redirect_to_after_update; #{ (options[:redirect_to_after_update] || options[:redirect_to_after_save]).inspect } end; end)
 
       # Figure out which actions to create based on the only and except options
       except = [*options[:except]].map!(&:to_sym)
