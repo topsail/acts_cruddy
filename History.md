@@ -1,3 +1,9 @@
+0.1.0
+=====
+	
+  * retire options *redirect_to_after-xxx* in favor of overwriting the *redirect_after_xxx* methods
+  * allow specifying how to redirect after #destroy
+
 0.0.8
 =====
 
