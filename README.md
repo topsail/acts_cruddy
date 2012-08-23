@@ -21,8 +21,7 @@ To add the default actions (index, show, new, create, edit, update, destroy) and
     WidgetsController < AppllicationController
 
       acts_cruddy :formats => [:html, :json],
-        :except => :destroy,
-        :redirect_to_after_save => :index
+        :except => :destroy
 
     end
 
