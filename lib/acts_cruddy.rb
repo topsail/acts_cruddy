@@ -1,13 +1,13 @@
 require "acts_cruddy/version"
 
 module ActsCruddy
- 
+
   ACTIONS = [ :index, :show, :new, :create, :edit, :update, :destroy ]
 
   def self.included(base)
     base.send :extend, ClassMethods
   end
- 
+
   module ClassMethods
 
     # Adds a basic implementation of CRUD actions to this controller.
@@ -15,7 +15,7 @@ module ActsCruddy
     # +except+ options.
     #
     def acts_cruddy(options={})
-      
+
       options = {
         :formats => [ :html, :json, :xml ],
         :only => ::ActsCruddy::ACTIONS,
@@ -79,13 +79,15 @@ module ActsCruddy
     end
 
   end
- 
+
   module InstanceMethods
-    
+
+    protected
+
     def record_name
       @record_name ||= controller_name.singularize
     end
-   
+
     def plural_record_name
       @plural_record_name ||= record_name.pluralize
     end
@@ -103,16 +105,23 @@ module ActsCruddy
     end
 
     def set_record_variables
-    
+
       if params[:id].present?
         @record = record_class.find(params[:id])
       else
-        @record = record_class.new(params[record_name])
+        @record = record_class.new(permitted_params)
       end
-      
+
       instance_variable_set("@#{record_name}", @record)
-    
+
     end
+
+    # overwrite this method in your cruddy contreollers for white-listing or black-listing parameters
+    def permitted_params
+      params[record_name]
+    end
+
+    public # just in case there will be more later, we don't want to shadow this
 
   end
 

@@ -18,23 +18,23 @@ module ActsCruddy
       end
 
       def create
-        
+
         if @record.save
           render :xml => @record.to_xml(:dasherize => false), :status => :created, :location => url_for(:action => :show, :id => @record)
         else
           render :xml => @record.errors.to_xml(:dasherize => false), :status => :unprocessable_entity
         end
-      
+
       end
 
       def update
-          
-        if @record.update_attributes(params[@record_name])
+
+        if @record.update_attributes(permitted_params)
           head :ok
         else
           render :xml => @record.errors.to_xml(:dasherize => false), :status => :unprocessable_entity
         end
-        
+
       end
 
       def destroy

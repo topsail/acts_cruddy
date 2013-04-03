@@ -17,12 +17,12 @@ module ActsCruddy
         else
           render :action => 'new'
         end
-        
+
       end
 
       def update
-        
-        if @record.update_attributes(params[record_name])
+
+        if @record.update_attributes(permitted_params)
           flash[:notice] = hierarchical_translate('record_updated', :name => record_name_value(@record))
           redirect_after_update
         else
@@ -34,20 +34,20 @@ module ActsCruddy
       def destroy
 
         @record.destroy
-        
+
         flash[:notice] = hierarchical_translate('record_destroyed', :name => record_name_value(@record))
         redirect_after_destroy
 
       end
 
       protected
-      
+
       # The scope of a translation by default is based on the location of the
       # template file.  This provides a version of translate that will look
       # for a value based on the application_controller subclass name, then fall back to the
       # application_controller scope, regardless of where the template file is.
       def hierarchical_translate(key, options={})
-       
+
         options = {
           :scope => controller_path.gsub('/', '.') + '.' + action_name,
           :default => t("application.#{action_name}.#{key}",
@@ -60,22 +60,22 @@ module ActsCruddy
         t(key, options)
 
       end
-      
+
       #
-      # Overwrite the any of the following 3 methods in your acts_cruddy controller if you don't like the defaults
+      # Overwrite any of the following methods in your acts_cruddy controller if you don't like the defaults
       #
       def redirect_after_save
-        redirect_to url_for(:controller => controller_path, :action => :show, :id => @record)        
+        redirect_to url_for(:controller => controller_path, :action => :show, :id => @record)
       end
-      
+
       def redirect_after_create
         redirect_after_save
       end
-      
+
       def redirect_after_update
         redirect_after_save
       end
-      
+
       def redirect_after_destroy
         redirect_to url_for(:controller => controller_path, :action => :index)
       end
