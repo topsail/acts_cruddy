@@ -26,7 +26,7 @@ module ActsCruddy
           flash[:notice] = hierarchical_translate('record_updated', :name => record_name_value(@record))
           redirect_after_update
         else
-          render :action => 'edit'
+          render :action => 'edit', :status => :unprocessable_entity
         end
 
       end

@@ -1,3 +1,7 @@
+0.1.2
+=====
+  * set http status 422 if update fails with format :html
+
 0.1.1
 =====
   * let controllers implement a method #permitted_params, which clears request parameters for record updates
