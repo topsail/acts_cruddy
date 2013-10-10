@@ -1,3 +1,6 @@
+0.1.3
+=====
+  * set http status 422 if create fails with format :html
 0.1.2
 =====
   * set http status 422 if update fails with format :html

@@ -15,7 +15,7 @@ module ActsCruddy
           flash[:notice] = hierarchical_translate('record_created', :name => record_name_value(@record))
           redirect_after_create
         else
-          render :action => 'new'
+          render :action => 'new', :status => :unprocessable_entity
         end
 
       end
