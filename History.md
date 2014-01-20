@@ -1,3 +1,7 @@
+0.1.4
+=====
+  * for JSON format, return NULL as json rather than an empty string, so that client side parsers don't complain about parseerrors despite successful requests (fix in version 0.0.5 was insufficient)
+
 0.1.3
 =====
   * set http status 422 if create fails with format :html
