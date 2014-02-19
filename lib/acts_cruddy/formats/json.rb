@@ -39,7 +39,7 @@ module ActsCruddy
 
       def destroy
         @record.destroy
-        head :ok
+        render :json => nil, :status => :ok
       end
 
     end
